@@ -11,7 +11,9 @@ def main():
   address = os.getenv("DEBUG_ADDRESS", None)
   if address:
     vault = Vault.from_address(address)
-    vault.apy(get_samples())
+    print(vault)
+    apy = vault.apy(get_samples())
+    print(apy)
   else:
     print("no address specified via $DEBUG_ADDRESS")
 

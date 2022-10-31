@@ -122,7 +122,9 @@ def simple(vault, samples: ApySamples) -> Apy:
 
 
 def average(vault, samples: ApySamples) -> Apy:
+    print('--- apy ---')
     reports = vault.reports
+    print(list(map(lambda r: r.block_number, reports)))
 
     # we don't want to display APYs when vaults are ramping up
     if len(reports) < 2:
@@ -138,6 +140,8 @@ def average(vault, samples: ApySamples) -> Apy:
     # the first report is when the vault first allocates funds to farm with
     inception_block = reports[0].block_number
     inception_price = price_per_share(block_identifier=inception_block)
+
+    print(samples, inception_block)
 
     if now_price == inception_price:
         raise ApyError("v2:inception", "no change from inception price")
@@ -159,6 +163,8 @@ def average(vault, samples: ApySamples) -> Apy:
     else:
         month_ago_price = inception_price
         month_ago_point = inception_point
+
+    print(now_price, week_ago_price, month_ago_price, inception_price)
 
     week_ago_apy = calculate_roi(now_point, week_ago_point)
     month_ago_apy = calculate_roi(now_point, month_ago_point)
@@ -185,6 +191,7 @@ def average(vault, samples: ApySamples) -> Apy:
 
     # for performance fee, half comes from strategy (strategist share) and half from the vault (treasury share)
     strategy_fees = []
+    print(vault.strategies)
     for strategy in vault.strategies: # look at all of our strategies
         debt_ratio = contract.strategies(strategy.strategy)['debtRatio'] / 10000
         performance_fee = contract.strategies(strategy.strategy)['performanceFee']
@@ -219,4 +226,5 @@ def average(vault, samples: ApySamples) -> Apy:
 
     points = ApyPoints(week_ago_apy, month_ago_apy, inception_apy)
     fees = ApyFees(performance=performance, management=management)
+    print('--- apy ---')
     return Apy("v2:averaged", gross_apr, net_apy, fees, points=points)
